@@ -24,6 +24,9 @@ migration:
     - platform: linux
       create_revision: 300451adae589accbece3490f4396f10bdf15e6e
       base_revision: 300451adae589accbece3490f4396f10bdf15e6e
+    - platform: macos
+      create_revision: 300451adae589accbece3490f4396f10bdf15e6e
+      base_revision: 300451adae589accbece3490f4396f10bdf15e6e
     - platform: web
       create_revision: 300451adae589accbece3490f4396f10bdf15e6e
       base_revision: 300451adae589accbece3490f4396f10bdf15e6e

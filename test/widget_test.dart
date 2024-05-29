@@ -1,30 +1,119 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-import 'package:muscletracker/main.dart';
+void main() => runApp(const MyApp());
 
-void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: MyHomePage(),
+    );
+  }
+}
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
-  });
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  String _response = '';
+  final TextEditingController _controller = TextEditingController();
+
+  Future<void> fetchData() async {
+    const url = 'https://your-app-name.vercel.app/api/data'; // Use your deployed URL here
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        // Directly use the response body as it is a plain string
+        setState(() {
+          _response = response.body;
+        });
+      } else {
+        setState(() {
+          _response = 'Failed to fetch data';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _response = 'Error: $e';
+      });
+    }
+  }
+
+  Future<void> sendComment(String comment) async {
+    const url = 'https://your-app-name.vercel.app/api/comment'; // Use your deployed URL here
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'comment': comment,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _response = jsonDecode(response.body)['message'];
+        });
+      } else {
+        setState(() {
+          _response = 'Failed to send comment';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _response = 'Error: $e';
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Flutter Next.js API Example'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            ElevatedButton(
+              onPressed: fetchData,
+              child: const Text('Fetch Data'),
+            ),
+            const SizedBox(height: 20),
+            Text('Response: $_response'),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: TextField(
+                controller: _controller,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Enter Comment',
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                sendComment(_controller.text);
+              },
+              child: const Text('Send Comment'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

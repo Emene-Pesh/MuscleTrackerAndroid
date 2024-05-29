@@ -38,6 +38,14 @@ app.*.symbols
 app.*.map.json
 
 # Android Studio will place build artifacts here
+# Android Studio will place build artifacts here
+
+/test/
+/linux/
+/macos/
+/windows/
+macos/Flutter/Flutter-Debug.xcconfig
 /android/app/debug
 /android/app/profile
 /android/app/release
+
