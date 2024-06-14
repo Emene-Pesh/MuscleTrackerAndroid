@@ -2,16 +2,24 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
+import 'package:muscletracker/screens/loginPage.dart';
 
-void main() => runApp(const MyApp());
+void main() {
+  runApp(const MuscleTrackerApp());
+}
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MuscleTrackerApp extends StatelessWidget {
+  const MuscleTrackerApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: MyHomePage(),
+    return MaterialApp(
+      title: 'Muscle Tracker',
+      initialRoute: '/login',
+      routes: {
+        '/home': (context) => const MyHomePage(),
+        '/login': (context) => const LoginPage(),
+      },
     );
   }
 }
@@ -107,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
         _location = 'Location permissions are permanently denied, we cannot request permissions.';
       });
       return;
-    } 
+    }
 
     final position = await Geolocator.getCurrentPosition();
     setState(() {
@@ -116,9 +124,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _openDisplayScreen() {
-    Navigator.push(
+    Navigator.pushNamed(
       context,
-      MaterialPageRoute(builder: (context) => const MyApp()),
+      '/login',
     );
   }
 
