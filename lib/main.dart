@@ -1,9 +1,7 @@
-// ignore_for_file: library_private_types_in_public_api
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
-
+import 'package:geolocator/geolocator.dart';
 
 void main() => runApp(const MyApp());
 
@@ -27,7 +25,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String _response = '';
-   final TextEditingController _controller = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
+  String _location = 'Unknown location';
 
   Future<void> fetchData() async {
     const url = 'http://192.168.1.3:3000/api/getExercises'; // Use your deployed URL here
@@ -49,6 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     }
   }
+
   Future<void> sendComment(String exercise) async {
     const url = 'http://192.168.1.3:3000/api/createExercise'; // Use your deployed URL here
     try {
@@ -78,6 +78,43 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  Future<void> _getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      setState(() {
+        _location = 'Location services are disabled.';
+      });
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        setState(() {
+          _location = 'Location permissions are denied';
+        });
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      setState(() {
+        _location = 'Location permissions are permanently denied, we cannot request permissions.';
+      });
+      return;
+    } 
+
+    final position = await Geolocator.getCurrentPosition();
+    setState(() {
+      _location = 'Lat: ${position.latitude}, Lon: ${position.longitude}';
+    });
+  }
+
   void _openDisplayScreen() {
     Navigator.push(
       context,
@@ -92,39 +129,48 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text('Flutter Next.js API Example'),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ElevatedButton(
-              onPressed: fetchData,
-              child: const Text('Fetch All Exercises'),
-            ),
-            const SizedBox(height: 20),
-            Text('Response: $_response'),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: TextField(
-                controller: _controller,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Enter Exercise Name',
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: fetchData,
+                child: const Text('Fetch All Exercises'),
+              ),
+              const SizedBox(height: 20),
+              Text('Response: $_response'),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: TextField(
+                  controller: _controller,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Enter Exercise Name',
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                sendComment(_controller.text);
-              },
-              child: const Text('Add Exercise'),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _openDisplayScreen,
-              child: const Text('Open Display Screen'),
-            ),
-          ],
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  sendComment(_controller.text);
+                },
+                child: const Text('Add Exercise'),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _openDisplayScreen,
+                child: const Text('Open Display Screen'),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _getCurrentLocation,
+                child: const Text('Get Current Location'),
+              ),
+              const SizedBox(height: 20),
+              Text('Location: $_location'),
+            ],
+          ),
         ),
       ),
     );
