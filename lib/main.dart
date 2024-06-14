@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:muscletracker/screens/loginPage.dart';
+import 'package:muscletracker/screens/workout.dart';
 
 void main() {
   runApp(const MuscleTrackerApp());
@@ -19,6 +20,7 @@ class MuscleTrackerApp extends StatelessWidget {
       routes: {
         '/home': (context) => const MyHomePage(),
         '/login': (context) => const LoginPage(),
+        '/Workouts': (context) => const WorkoutAccordion(),
       },
     );
   }
