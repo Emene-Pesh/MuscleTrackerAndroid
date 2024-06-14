@@ -134,7 +134,76 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Flutter Next.js API Example'),
+        // automaticallyImplyLeading: false,
+        title: const Text('Muscle Tracker'),
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text('Home'),
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+                Navigator.pushNamed(context, '/home');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.directions_run_outlined),
+              title: const Text('Workouts'),
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+                Navigator.pushNamed(context, '/Workouts');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.rowing_sharp),
+              title: const Text('New Exercise'),
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+                Navigator.pushNamed(context, '/newExercise');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.monitor_weight),
+              title: const Text('Stats'),
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+                Navigator.pushNamed(context, '/stats');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.map_rounded),
+              title: const Text('Find a Gym'),
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+                Navigator.pushNamed(context, '/findGym');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.login),
+              title: const Text('Login'),
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+                Navigator.pushNamed(context, '/login');
+              },
+            ),
+          ],
+        ),
       ),
       body: Center(
         child: SingleChildScrollView(
