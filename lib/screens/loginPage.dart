@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:geolocator/geolocator.dart';
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,6 +14,48 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  String _errorMessage = '';
+
+  Future<void> _login() async {
+    final String username = _usernameController.text.trim();
+    final String password = _passwordController.text.trim();
+
+    // Your API endpoint
+    final String apiUrl = 'http://192.168.56.1:3000/api/flutterLogin';
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(<String, String>{
+          'email': username,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        // Handle successful login here
+        // Navigate to the next screen or perform any action
+        print('Login successful!');
+        _errorMessage = ''; // Clear any previous error message
+        // Navigate to next screen or do something else
+      } else {
+        // Handle error response
+        setState(() {
+          _errorMessage = 'Login failed. Please check your credentials.';
+        });
+        print('Login failed: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Handle other errors like network issues
+      setState(() {
+        _errorMessage = 'Error: $e';
+      });
+      print('Error: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,13 +92,17 @@ class _LoginPageState extends State<LoginPage> {
               onPressed: () {
                 if ((_formKey.currentState?.validate() ?? false)) {
                   // If the form is valid, display a Snackbar.
+                  _login();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Processing Data')),
+                    SnackBar(content: Text(_errorMessage)),
                   );
-                  Navigator.pushNamed(
-                  context,
-                  '/home',
-                );
+                  if (!_errorMessage.isNotEmpty){
+                    Navigator.pushNamed(
+                      context,
+                      '/home',
+                    );
+                  }
+                  
                 }
               },
               child: Text('Submit'),
