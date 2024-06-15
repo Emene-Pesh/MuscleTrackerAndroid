@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import '../user_provider.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -19,6 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _login() async {
     final String username = _usernameController.text.trim();
     final String password = _passwordController.text.trim();
+    
 
     // Your API endpoint
     final String apiUrl = 'http://192.168.56.1:3000/api/flutterLogin';
@@ -36,10 +39,18 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        Provider.of<UserProvider>(context, listen: false).setUser(data['body']);
+        
+
+
         // Handle successful login here
         // Navigate to the next screen or perform any action
-        print('Login successful!');
-        _errorMessage = ''; // Clear any previous error message
+        print('Login successful!, user: ${data['body']}');
+        Navigator.pushNamed(
+          context,
+          '/home',
+        );
         // Navigate to next screen or do something else
       } else {
         // Handle error response

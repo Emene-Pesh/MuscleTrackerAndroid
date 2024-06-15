@@ -6,13 +6,25 @@ import 'package:muscletracker/screens/loginPage.dart';
 import 'package:muscletracker/screens/workout.dart';
 import 'package:muscletracker/screens/newExercise.dart';
 import 'package:muscletracker/screens/newWorkout.dart';
-
+import 'package:provider/provider.dart';
+import 'user_provider.dart';
+import 'package:muscletracker/screens/stats.dart';
 void main() {
-  runApp(const MuscleTrackerApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+      ],
+      child: const MuscleTrackerApp(
+        
+      ),
+    ),
+  );
 }
 
 class MuscleTrackerApp extends StatelessWidget {
   const MuscleTrackerApp({super.key});
+  
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +37,7 @@ class MuscleTrackerApp extends StatelessWidget {
         '/Workouts': (context) => const WorkoutAccordion(),
         '/newExercise': (context) => const NewExerciseScreen(),
         '/newWorkouts': (context) => const WorkoutScreen(),
+        '/stats': (context) => const StatsScreen(),
       },
     );
   }
@@ -63,35 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<void> sendComment(String exercise) async {
-    const url = 'http://192.168.1.3:3000/api/createExercise'; // Use your deployed URL here
-    try {
-      final response = await http.post(
-        Uri.parse(url),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, String>{
-          'name': exercise,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        setState(() {
-          _response = jsonDecode(response.body)['message'];
-        });
-      } else {
-        setState(() {
-          _response = 'Failed to add exercise';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _response = 'Error: $e';
-      });
-    }
-  }
-
+  
   Future<void> _getCurrentLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -138,11 +123,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final String data = Provider.of<UserProvider>(context).user;
+    // final String data = ModalRoute.of(context)!.settings.arguments as String? ?? 'No data received';
+    print('Data: $data');
     return Scaffold(
       appBar: AppBar(
         // automaticallyImplyLeading: false,
         title: const Text('Muscle Tracker'),
-        iconTheme: const IconThemeData(color: Colors.black),
       ),
       drawer: Drawer(
         child: ListView(
@@ -189,7 +176,7 @@ class _MyHomePageState extends State<MyHomePage> {
               title: const Text('New Exercise'),
               onTap: () {
                 Navigator.pop(context); // Close the drawer
-                Navigator.pushNamed(context, '/newExercise');
+                Navigator.pushNamed(context, '/newExercise', arguments: data);
               },
             ),
             ListTile(
@@ -197,7 +184,7 @@ class _MyHomePageState extends State<MyHomePage> {
               title: const Text('Stats'),
               onTap: () {
                 Navigator.pop(context); // Close the drawer
-                Navigator.pushNamed(context, '/stats');
+                Navigator.pushNamed(context, '/stats', arguments: data);
               },
             ),
             ListTile(
@@ -232,30 +219,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              ElevatedButton(
-                onPressed: fetchData,
-                child: const Text('Fetch All Exercises'),
-              ),
-              const SizedBox(height: 20),
-              Text('Response: $_response'),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: TextField(
-                  controller: _controller,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Enter Exercise Name',
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  sendComment(_controller.text);
-                },
-                child: const Text('Add Exercise'),
-              ),
+              
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _openDisplayScreen,
@@ -268,6 +232,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               const SizedBox(height: 20),
               Text('Location: $_location'),
+              Text('Data: $data'),
             ],
           ),
         ),
