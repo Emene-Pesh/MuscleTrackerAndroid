@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class NewExerciseScreen extends StatefulWidget {
   const NewExerciseScreen({Key? key}) : super(key: key);
@@ -18,16 +19,17 @@ class _NewExerciseScreenState extends State<NewExerciseScreen> {
     String muscleGroup = _muscleGroupController.text;
 
     // TODO: Replace with your API endpoint
-    String apiUrl = 'https://192.168.56.1:3000/api/createExercise';
+    String apiUrl = 'http://192.168.56.1:3000/api/createExercise';
+
+    Map<String, dynamic> exerciseData = {
+      'name': name,    };
+
+    String jsonBody = json.encode(exerciseData);
 
     try {
       final response = await http.post(
         Uri.parse(apiUrl),
-        body: {
-          'name': name,
-          'description': description,
-          'muscleGroup': muscleGroup,
-        },
+        body: jsonBody,
       );
 
       if (response.statusCode == 200) {
