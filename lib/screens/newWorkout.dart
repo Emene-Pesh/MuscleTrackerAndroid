@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 
 
@@ -12,14 +14,40 @@ class WorkoutScreen extends StatefulWidget {
 class _WorkoutScreenState extends State<WorkoutScreen> {
   List<Exercise> exercises = [];
   final TextEditingController _workoutNameController = TextEditingController();
-  
+  DateTime _currentDate = DateTime.now(); // Added date field
 
-  void submitWorkout() {
+  void submitWorkout() async {
     String workoutName = _workoutNameController.text;
-    // Handle submission logic here
-    print('Workout Name: $workoutName');
-    print('Exercises: ${exercises.map((e) => e.name).toList()}');
-    // Add your API submission logic here
+    List<Map<String, dynamic>> exercisesJson = exercises.map((exercise) => exercise.toJson()).toList();
+
+    Map<String, dynamic> workoutData = {
+      'title': workoutName,
+      'date': _currentDate.toUtc().toIso8601String(),
+      'exercise': {
+        'create': exercisesJson,
+      },
+    };
+
+    String jsonBody = json.encode(workoutData);
+    print('Workout Data: $workoutData');
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.56.1:3000/api/newWorkout'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonBody,
+      );
+
+      if (response.statusCode == 200) {
+        print('Workout submitted successfully!');
+      } else {
+        print('Failed to submit workout. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error submitting workout: $e');
+    }
   }
 
   void addExercise() {
@@ -233,6 +261,12 @@ class Exercise {
 
   Exercise({required this.name, required this.sets})
       : controller = TextEditingController(text: name);
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'sets': sets.map((set) => set.toJson()).toList(),
+    };
+  }
 }
 
 class Set {
@@ -247,4 +281,11 @@ class Set {
       : weightController = TextEditingController(text: weight.toString()),
         repAmountController = TextEditingController(text: repAmount.toString()),
         RPEController = TextEditingController(text: RPE.toString());
+    Map<String, dynamic> toJson() {
+    return {
+      'weight': weight,
+      'repAmount': repAmount,
+      'RPE': RPE,
+    };
+  }
 }
