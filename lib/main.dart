@@ -201,6 +201,14 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             ListTile(
+              leading: const Icon(Icons.publish_sharp),
+              title: const Text('Workouts'),
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+                Navigator.pushNamed(context, '/Workouts');
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.map_rounded),
               title: const Text('Find a Gym'),
               onTap: () {

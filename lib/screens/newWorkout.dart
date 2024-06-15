@@ -15,10 +15,39 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   List<Exercise> exercises = [];
   final TextEditingController _workoutNameController = TextEditingController();
   DateTime _currentDate = DateTime.now(); // Added date field
+  List<String> exerciseNames = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchExerciseNames();
+    
+  }
+
+  Future<void> fetchExerciseNames() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://192.168.56.1:3000/api/getExercises'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        Set<dynamic> uniqueExerciseNames = data.map((exercise) => exercise['name'].toString()).toSet();
+        print('Unique Exercise Names: $uniqueExerciseNames');
+        setState(() {
+          exerciseNames = uniqueExerciseNames.map((e) => e.toString()).toList();
+        });
+        print('Exercise Names: $exerciseNames');
+      } else {
+        print('Failed to load exercise names. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error loading exercise names: $e');
+    }
+  }
 
   void submitWorkout() async {
     String workoutName = _workoutNameController.text;
     List<Map<String, dynamic>> exercisesJson = exercises.map((exercise) => exercise.toJson()).toList();
+    
 
     Map<String, dynamic> workoutData = {
       'title': workoutName,
@@ -70,7 +99,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
 
   void addSet(int exerciseIndex) {
     setState(() {
-      exercises[exerciseIndex].sets.add(Set(weight: 0, repAmount: 0, RPE: 0));
+      exercises[exerciseIndex].sets.add(Sets(weight: 0, repAmount: 0, RPE: 0));
     });
   }
   void removeSet(int exerciseIndex, int setIndex) {
@@ -79,7 +108,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     });
   }
 
-  void updateSet(int exerciseIndex, int setIndex, Set set) {
+  void updateSet(int exerciseIndex, int setIndex, Sets set) {
     setState(() {
       exercises[exerciseIndex].sets[setIndex] = set;
     });
@@ -107,13 +136,16 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               child: ListView.builder(
                 itemCount: exercises.length,
                 itemBuilder: (context, index) {
-                  return ExerciseInput(
+                  print(index);
+                  return 
+                  ExerciseInput(
                     exercise: exercises[index],
                     onRemove: () => removeExercise(index),
                     onUpdate: (updatedExercise) => updateExercise(index, updatedExercise),
                     onAddSet: () => addSet(index),
                     onUpdateSet: (setIndex, updatedSet) => updateSet(index, setIndex, updatedSet),
                     onRemoveSet: (setIndex) => removeSet(index, setIndex),
+                    exerciseNames: exerciseNames,
                   );
                 },
               ),
@@ -138,8 +170,9 @@ class ExerciseInput extends StatelessWidget {
   final VoidCallback onRemove;
   final ValueChanged<Exercise> onUpdate;
   final VoidCallback onAddSet;
-  final Function(int, Set) onUpdateSet;
+  final Function(int, Sets) onUpdateSet;
   final Function(int) onRemoveSet;
+  final List<String> exerciseNames;
 
   ExerciseInput({
     required this.exercise,
@@ -148,6 +181,7 @@ class ExerciseInput extends StatelessWidget {
     required this.onAddSet,
     required this.onUpdateSet,
     required this.onRemoveSet,
+    required this.exerciseNames,
   });
 
   @override
@@ -159,25 +193,30 @@ class ExerciseInput extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
+            DropdownButtonFormField<String>(
               decoration: InputDecoration(labelText: 'Exercise Name'),
+              items: exerciseNames.map((String name) {
+                return DropdownMenuItem<String>(
+                  value: name,
+                  child: Text(name),
+                );
+              }).toList(),
               onChanged: (value) {
-                exercise.name = value;
-                onUpdate(exercise);
+                if (value != null) {
+                  exercise.name = value;
+                  onUpdate(exercise);
+                }
               },
-              controller: exercise.controller,
             ),
-            SizedBox(height: 8.0),
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: exercise.sets.length,
-              itemBuilder: (context, index) {
-                return SetInput(
+            Column(
+              children: List.generate(
+                exercise.sets.length,
+                (index) => SetInput(
                   set: exercise.sets[index],
                   onUpdate: (updatedSet) => onUpdateSet(index, updatedSet),
                   onRemove: () => onRemoveSet(index),
-                );
-              },
+                ),
+              ),
             ),
             SizedBox(height: 8.0),
             ElevatedButton(
@@ -200,8 +239,8 @@ class ExerciseInput extends StatelessWidget {
 
 
 class SetInput extends StatelessWidget {
-  final Set set;
-  final ValueChanged<Set> onUpdate;
+  final Sets set;
+  final ValueChanged<Sets> onUpdate;
   final VoidCallback onRemove;
 
   SetInput({
@@ -256,7 +295,7 @@ class SetInput extends StatelessWidget {
 
 class Exercise {
   String name;
-  List<Set> sets;
+  List<Sets> sets;
   TextEditingController controller;
 
   Exercise({required this.name, required this.sets})
@@ -269,7 +308,7 @@ class Exercise {
   }
 }
 
-class Set {
+class Sets {
   int weight;
   int repAmount;
   int RPE;
@@ -277,7 +316,7 @@ class Set {
   TextEditingController repAmountController;
   TextEditingController RPEController;
 
-  Set({required this.weight, required this.repAmount, required this.RPE})
+  Sets({required this.weight, required this.repAmount, required this.RPE})
       : weightController = TextEditingController(text: weight.toString()),
         repAmountController = TextEditingController(text: repAmount.toString()),
         RPEController = TextEditingController(text: RPE.toString());
