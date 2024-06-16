@@ -9,6 +9,8 @@ import 'package:muscletracker/screens/newWorkout.dart';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
 import 'package:muscletracker/screens/stats.dart';
+import 'package:muscletracker/screens/findGym.dart';
+
 void main() {
   runApp(
     MultiProvider(
@@ -30,7 +32,7 @@ class MuscleTrackerApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Muscle Tracker',
-      initialRoute: '/login',
+      initialRoute: '/home',
       routes: {
         '/home': (context) => const MyHomePage(),
         '/login': (context) => const LoginPage(),
@@ -38,6 +40,7 @@ class MuscleTrackerApp extends StatelessWidget {
         '/newExercise': (context) => const NewExerciseScreen(),
         '/newWorkouts': (context) => const WorkoutScreen(),
         '/stats': (context) => const StatsScreen(),
+        '/findGym': (context) => const FindGymScreen(),
       },
     );
   }
@@ -155,14 +158,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.pushNamed(context, '/home');
               },
             ),
-            // ListTile(
-            //   leading: const Icon(Icons.directions_run_outlined),
-            //   title: const Text('Workouts'),
-            //   onTap: () {
-            //     Navigator.pop(context); // Close the drawer
-            //     Navigator.pushNamed(context, '/Workouts');
-            //   },
-            // ),
             ListTile(
               leading: const Icon(Icons.publish_sharp),
               title: const Text('New Workout'),
