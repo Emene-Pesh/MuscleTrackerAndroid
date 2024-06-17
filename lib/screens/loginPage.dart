@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import '../user_provider.dart';
 
-
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -22,7 +21,6 @@ class _LoginPageState extends State<LoginPage> {
     final String username = _usernameController.text.trim();
     final String password = _passwordController.text.trim();
     
-
     // Your API endpoint
     final String apiUrl = 'http://192.168.56.1:3000/api/flutterLogin';
 
@@ -41,15 +39,13 @@ class _LoginPageState extends State<LoginPage> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
         Provider.of<UserProvider>(context, listen: false).setUser(data['body']);
-        
-
 
         // Handle successful login here
         // Navigate to the next screen or perform any action
         print('Login successful!, user: ${data['body']}');
         Navigator.pushNamed(
           context,
-          '/home',
+          '/workouts',
         );
         // Navigate to next screen or do something else
       } else {
@@ -74,51 +70,52 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         title: Text('Login'),
       ),
-      body: Form(
-        key: _formKey,
-        child: Column(
-          children: <Widget>[
-            TextFormField(
-              controller: _usernameController,
-              decoration: InputDecoration(labelText: 'Username'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your username';
-                }
-                return null;
-              },
+      body: Center( // Center the entire form
+        child: Form(
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                TextFormField(
+                  controller: _usernameController,
+                  decoration: InputDecoration(labelText: 'Email'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your email';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _passwordController,
+                  decoration: InputDecoration(labelText: 'Password'),
+                  obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your password';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 20), // Add some spacing between the fields and the button
+                ElevatedButton(
+                  onPressed: () {
+                    if ((_formKey.currentState?.validate() ?? false)) {
+                      _login();
+                      if (_errorMessage.isNotEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(_errorMessage)),
+                        );
+                      }
+                    }
+                  },
+                  child: Text('Submit'),
+                ),
+              ],
             ),
-            TextFormField(
-              controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
-              obscureText: true,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your password';
-                }
-                return null;
-              },
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if ((_formKey.currentState?.validate() ?? false)) {
-                  // If the form is valid, display a Snackbar.
-                  _login();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(_errorMessage)),
-                  );
-                  if (!_errorMessage.isNotEmpty){
-                    Navigator.pushNamed(
-                      context,
-                      '/home',
-                    );
-                  }
-                  
-                }
-              },
-              child: Text('Submit'),
-            ),
-          ],
+          ),
         ),
       ),
     );
