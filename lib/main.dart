@@ -32,11 +32,11 @@ class MuscleTrackerApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Muscle Tracker',
-      initialRoute: '/home',
+      initialRoute: '/login',
       routes: {
         '/home': (context) => const MyHomePage(),
         '/login': (context) => const LoginPage(),
-        '/Workouts': (context) => const WorkoutAccordion(),
+        '/workouts': (context) => const WorkoutAccordion(),
         '/newExercise': (context) => const NewExerciseScreen(),
         '/newWorkouts': (context) => const WorkoutScreen(),
         '/stats': (context) => const StatsScreen(),
@@ -183,11 +183,11 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.publish_sharp),
+              leading: const Icon(Icons.note),
               title: const Text('Workouts'),
               onTap: () {
                 Navigator.pop(context); // Close the drawer
-                Navigator.pushNamed(context, '/Workouts');
+                Navigator.pushNamed(context, '/workouts');
               },
             ),
             ListTile(

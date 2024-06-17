@@ -80,11 +80,11 @@ class _WorkoutAccordionState extends State<WorkoutAccordion> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.directions_run_outlined),
-              title: const Text('Workouts'),
+              leading: const Icon(Icons.publish_sharp),
+              title: const Text('New Workout'),
               onTap: () {
                 Navigator.pop(context); // Close the drawer
-                Navigator.pushNamed(context, '/Workouts');
+                Navigator.pushNamed(context, '/newWorkouts');
               },
             ),
             ListTile(
@@ -101,6 +101,14 @@ class _WorkoutAccordionState extends State<WorkoutAccordion> {
               onTap: () {
                 Navigator.pop(context); // Close the drawer
                 Navigator.pushNamed(context, '/stats');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.note),
+              title: const Text('Workouts'),
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+                Navigator.pushNamed(context, '/workouts');
               },
             ),
             ListTile(
