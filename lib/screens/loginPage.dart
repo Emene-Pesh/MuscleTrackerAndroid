@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import '../user_provider.dart';
+import 'package:wifi_info_flutter/wifi_info_flutter.dart';
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -21,8 +24,13 @@ class _LoginPageState extends State<LoginPage> {
     final String username = _usernameController.text.trim();
     final String password = _passwordController.text.trim();
     
+
+    final String? ipAddress = await WifiInfo().getWifiIP();
+    print('Device IP Address: $ipAddress');
+    
     // Your API endpoint
-    final String apiUrl = 'http://192.168.56.1:3000/api/flutterLogin';
+    final String apiUrl = '${dotenv.env['API_URL']!}/flutterLogin';
+    print('API URL: $apiUrl');
 
     try {
       final response = await http.post(

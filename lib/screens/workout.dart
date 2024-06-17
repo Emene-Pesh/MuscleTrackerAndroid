@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -25,7 +26,7 @@ class _WorkoutAccordionState extends State<WorkoutAccordion> {
     fetchWorkouts();
   }
   Future<void> fetchWorkouts() async {
-    const url = 'http://192.168.56.1:3000/api/getWorkouts'; // Replace with your API URL
+    final url = '${dotenv.env['API_URL']!}/getWorkouts'; // Replace with your API URL
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {

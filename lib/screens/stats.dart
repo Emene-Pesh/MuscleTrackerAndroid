@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import '../user_provider.dart';
@@ -32,7 +33,7 @@ class _EditableTableState extends State<StatsScreen> {
   }
 
   Future<void> _fetchData() async {
-    final String apiUrl = 'http://192.168.56.1:3000/api/getStats';
+    final String apiUrl = '${dotenv.env['API_URL']!}/getStats';
 
     try {
       final response = await http.post(
@@ -77,7 +78,7 @@ class _EditableTableState extends State<StatsScreen> {
   }
 
   Future<void> _deleteRow(int index) async {
-    final String apiUrl = 'http://192.168.56.1:3000/api/deleteStat';
+    final String apiUrl = '${dotenv.env['API_URL']!}/deleteStat';
     print('Deleting data: ${_tableData[index]}');
     try {
       final response = await http.post(
@@ -107,7 +108,7 @@ class _EditableTableState extends State<StatsScreen> {
   }
 
   Future<void> _saveTable() async {
-    final String apiUrl = 'http://192.168.56.1:3000/api/saveStats';
+    final String apiUrl = '${dotenv.env['API_URL']!}/saveStats';
     print('Saving data: $_tableData');
     try {
       final response = await http.post(

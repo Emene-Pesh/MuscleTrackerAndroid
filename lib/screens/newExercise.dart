@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -18,8 +19,8 @@ class _NewExerciseScreenState extends State<NewExerciseScreen> {
     String description = _descriptionController.text;
     String muscleGroup = _muscleGroupController.text;
 
-    // TODO: Replace with your API endpoint
-    String apiUrl = 'http://192.168.56.1:3000/api/createExercise';
+    
+    String apiUrl = '${dotenv.env['API_URL']!}/api/createExercise';
 
     Map<String, dynamic> exerciseData = {
       'name': name,    };

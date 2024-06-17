@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -25,9 +26,10 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   }
 
   Future<void> fetchExerciseNames() async {
+    final apiUrl ='${dotenv.env['API_URL']!}/getExercises'; 
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.56.1:3000/api/getExercises'));
+        Uri.parse(apiUrl));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         Set<dynamic> uniqueExerciseNames = data.map((exercise) => exercise['name'].toString()).toSet();
@@ -59,10 +61,11 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
 
     String jsonBody = json.encode(workoutData);
     print('Workout Data: $workoutData');
+    final apiUrl = '${dotenv.env['API_URL']!}/newWorkout';
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.56.1:3000/api/newWorkout'),
+        Uri.parse(apiUrl),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -127,10 +130,6 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             TextField(
             controller: _workoutNameController,
             decoration: InputDecoration(labelText: 'Workout Name'),
-          ),
-          ElevatedButton(
-            onPressed: submitWorkout,
-            child: Text('Submit Workout'),
           ),
             Expanded(
               child: ListView.builder(
@@ -227,7 +226,7 @@ class ExerciseInput extends StatelessWidget {
             ElevatedButton(
               onPressed: onRemove,
               child: Text('Remove Exercise'),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.black54),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow),
             ),
           ],
         ),
@@ -283,7 +282,7 @@ class SetInput extends StatelessWidget {
         ElevatedButton(
           onPressed: onRemove,
           child: Text('Remove Set'),
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.black54),
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow),
         ),
         Divider(),
       ],

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ffi';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'dart:math' show cos, sqrt, asin;
@@ -54,7 +55,8 @@ class _FindGymScreenState extends State<FindGymScreen> {
 
   Future<void> _fetchAndComputeFindGym() async {
     // Fetch locations from API
-    final response = await http.get(Uri.parse('http://192.168.56.1:3000/api/getGyms'));
+    final String apiUrl = '${dotenv.env['API_URL']!}/getGyms'; 
+    final response = await http.get(Uri.parse(apiUrl));
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
       final List<Map<String, dynamic>> locations = List<Map<String, dynamic>>.from(data);

@@ -10,8 +10,10 @@ import 'package:provider/provider.dart';
 import 'user_provider.dart';
 import 'package:muscletracker/screens/stats.dart';
 import 'package:muscletracker/screens/findGym.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+void main() async {
+  await dotenv.load(fileName: ".env");
   runApp(
     MultiProvider(
       providers: [
@@ -59,7 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String _location = 'Unknown location';
 
   Future<void> fetchData() async {
-    const url = 'http://192.168.1.3:3000/api/getExercises'; // Use your deployed URL here
+    final url = '${dotenv.env['API_URL']!}/getExercises'; // Use your deployed URL here
     try {
       final response = await http.get(Uri.parse(url));
 
