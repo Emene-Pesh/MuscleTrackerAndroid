@@ -4,8 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import '../user_provider.dart';
 
-
-
 class StatsScreen extends StatefulWidget {
   const StatsScreen({Key? key}) : super(key: key);
   @override
@@ -13,7 +11,6 @@ class StatsScreen extends StatefulWidget {
 }
 
 class _EditableTableState extends State<StatsScreen> {
-  
   List<Map<String, dynamic>> _tableData = [];
   List<List<bool>> _editState = [];
   List<TextEditingController> _controllers = [];
@@ -22,7 +19,6 @@ class _EditableTableState extends State<StatsScreen> {
   @override
   void initState() {
     super.initState();
-    
   }
 
   @override
@@ -46,10 +42,9 @@ class _EditableTableState extends State<StatsScreen> {
         },
         body: jsonEncode(<String, String>{
           'user': user,
-          }),
+        }),
       );
       print('Response: ${response.body}');
-        
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
@@ -62,6 +57,8 @@ class _EditableTableState extends State<StatsScreen> {
               'height': data['height'][index].toString(),
               'fat': data['fat'][index].toString(),
               'cals': data['cals'][index].toString(),
+              'idstats': data['idstats'][index].toString(),
+              'idcals': data['idcals'][index].toString(),
             };
           });
 
@@ -79,25 +76,85 @@ class _EditableTableState extends State<StatsScreen> {
     }
   }
 
+  Future<void> _deleteRow(int index) async {
+    final String apiUrl = 'http://192.168.56.1:3000/api/deleteStat';
+    print('Deleting data: ${_tableData[index]}');
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(<String, dynamic>{
+          'user': user,
+          'data': _tableData[index],
+        }),
+      );
+      print('User: $user');
+      print('Delete Response: ${response.body}');
+      if (response.statusCode == 200) {
+        setState(() {
+          _tableData.removeAt(index);
+          _editState.removeAt(index);
+          _controllers.removeRange(index * 4, (index + 1) * 4);
+        });
+      } else {
+        print('Failed to delete data');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  Future<void> _saveTable() async {
+    final String apiUrl = 'http://192.168.56.1:3000/api/saveStats';
+    print('Saving data: $_tableData');
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(<String, dynamic>{
+          'user': user,
+          'data': _tableData,
+        }),
+      );
+      print('Save Response: ${response.body}');
+      if (response.statusCode == 200) {
+        print('Data saved successfully');
+      } else {
+        print('Failed to save data');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final String data = Provider.of<UserProvider>(context).user;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Stats'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.save),
+            onPressed: _saveTable,
+          ),
+        ],
       ),
       body: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: _tableData.isEmpty
-          ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                columns: _buildDataColumns(),
-                rows: _buildDataRows(),
+        padding: const EdgeInsets.all(16.0),
+        child: _tableData.isEmpty
+            ? Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  columns: _buildDataColumns(),
+                  rows: _buildDataRows(),
+                ),
               ),
-            ),
-    ),
+      ),
     );
   }
 
@@ -108,6 +165,7 @@ class _EditableTableState extends State<StatsScreen> {
       DataColumn(label: Text('Fat')),
       DataColumn(label: Text('Cals')),
       DataColumn(label: Text('Date')),
+      DataColumn(label: Text('Actions')),
     ];
   }
 
@@ -119,12 +177,17 @@ class _EditableTableState extends State<StatsScreen> {
 
   List<DataCell> _buildDataCells(int rowIndex) {
     return [
-      
       _buildEditableCell(rowIndex, 0, _tableData[rowIndex]['weight']),
       _buildEditableCell(rowIndex, 1, _tableData[rowIndex]['height']),
       _buildEditableCell(rowIndex, 2, _tableData[rowIndex]['fat']),
       _buildEditableCell(rowIndex, 3, _tableData[rowIndex]['cals']),
       DataCell(Text(_tableData[rowIndex]['date'])),
+      DataCell(
+        IconButton(
+          icon: Icon(Icons.delete),
+          onPressed: () => _deleteRow(rowIndex),
+        ),
+      ),
     ];
   }
 
